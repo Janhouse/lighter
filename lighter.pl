@@ -70,7 +70,7 @@ my $keyb_min=0;
 # Maximum light ammount.
 my $keyb_max=180; #actual max = 255.
 # Minimum difference to change the brightness.
-my $keyb_min_diff=30;
+my $keyb_min_diff=20;
 # Path for keyboard backglight.
 my $keyb_script="/sys/class/leds/smc::kbd_backlight/brightness";
 
