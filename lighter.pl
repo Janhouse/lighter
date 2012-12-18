@@ -47,7 +47,8 @@ my $screen_min=300;
 my $screen_max=1808;
 # Minimum light ammount when AC is connected.
 my $screen_min_ac=700;
-
+# Brightness when laptop is on battery and in complete darkness.
+my $screen_min_ac_dark=80;
 # Steps for gradual fade.
 my $screen_step=50;
 # Delay between steps in the fade.
@@ -67,6 +68,8 @@ my $keyb_fade_wait=80000;
 my $keyb_light_care=20;
 # Minimum light ammount.
 my $keyb_min=0;
+# Maximum keyboard brightness on battery.
+my $keyb_max_bat=2;
 # Maximum light ammount.
 my $keyb_max=180; #actual max = 255.
 # Minimum difference to change the brightness.
@@ -196,7 +199,10 @@ sub worker {
     
     if($lightval < $keyb_light_care){
         debug_msg( "It is dark enough, turning on the keyboard backlight.\n" );
-        &keyb_gradually($keyb_now, ceil($keyb_max/($lightval+1)) );
+        
+        my $klval=ceil($keyb_max/($lightval+1));
+        $klval=$keyb_max_bat if $ac>0;
+        &keyb_gradually($keyb_now, $klval );
     }
 
     if($lightval >= $light_care){
@@ -207,8 +213,12 @@ sub worker {
         #ceil($light_max/100)*
         
         my $min=$screen_min;
-        $min=$screen_min_ac if $ac==0;
-        &screen_gradually( $screen_now, $min + floor ( ($screen_max-$min) * ($lightval / $light_care) ) );
+        $min=$screen_min_ac;
+        
+        my $screenval= $min + floor ( ($screen_max-$min) * ($lightval / $light_care) );
+        $screenval=$screen_min_ac_dark if $ac>0 and $lightval<=1;
+
+        &screen_gradually( $screen_now, $screenval );
     }
 
 }
